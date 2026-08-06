@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Koral UI Mockup</title>
+<style>
+  :root {
+    --bg: #f7f7f9;
+    --panel: #ffffff;
+    --text: #14161c;
+    --muted: #6b7280;
+    --border: #e6e6ea;
+    --primary: #4f46e5;
+    --primary-foreground: #ffffff;
+    --accent: #eef2ff;
+    --shadow: 0 8px 24px rgba(15, 15, 25, 0.08);
+    --radius: 16px;
+  }
+  [data-theme="dark"] {
+    --bg: #0b0d14;
+    --panel: #14161c;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --border: #1f2330;
+    --primary: #818cf8;
+    --primary-foreground: #0b0d14;
+    --accent: #1c1f2b;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(12px) saturate(1.2);
+    background: color-mix(in oklab, var(--bg) 80%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .toolbar { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .brand { font-weight: 800; letter-spacing: -0.02em; font-size: 1.25rem; }
+  .spacer { flex: 1; }
+  .theme-switcher { display: inline-flex; gap: 6px; }
+  .chip {
+    appearance: none; border: 1px solid var(--border); background: var(--panel);
+    color: var(--text); padding: 8px 12px; border-radius: 999px; cursor: pointer;
+    font-weight: 600; font-size: 0.85rem;
+  }
+  .chip[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: transparent; }
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .card p { margin: 0; color: var(--muted); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 18px; border-radius: 12px; border: 1px solid transparent;
+    font-weight: 700; font-size: 0.95rem; cursor: pointer;
+    background: var(--primary); color: var(--primary-foreground);
+  }
+  .btn.secondary { background: transparent; border-color: var(--border); color: var(--text); }
+  .input {
+    width: 100%; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+    outline: none;
+  }
+  .input:focus { box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 25%, transparent); border-color: var(--primary); }
+  .nav {
+    display: flex; gap: 8px; overflow: auto; padding: 12px 0;
+  }
+  .nav-item {
+    white-space: nowrap; padding: 8px 12px; border-radius: 10px; cursor: pointer;
+    color: var(--muted);
+  }
+  .nav-item.active { background: var(--accent); color: var(--text); font-weight: 700; }
+  .section { margin-top: 24px; }
+  .section-title { font-weight: 800; letter-spacing: -0.02em; margin: 0 0 12px; }
+  .tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); }
+  .tab { padding: 10px 12px; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 600; color: var(--muted); }
+  .tab[aria-selected="true"] { border-color: var(--primary); color: var(--text); }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--accent); color: var(--text); font-weight: 700; font-size: 0.8rem; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #c084fc); }
+  @media (max-width: 720px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .container { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container toolbar">
+      <div class="brand">Koral</div>
+      <nav class="nav" aria-label="Primary">
+        <div class="nav-item active">Home</div>
+        <div class="nav-item">Activity</div>
+        <div class="nav-item">Messages</div>
+        <div class="nav-item">Profile</div>
+      </nav>
+      <div class="spacer"></div>
+      <div class="theme-switcher">
+        <button class="chip" data-role="theme" data-value="system" aria-pressed="true">System</button>
+        <button class="chip" data-role="theme" data-value="light" aria-pressed="false">Light</button>
+        <button class="chip" data-role="theme" data-value="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <h1 class="section-title">Dashboard preview</h1>
+      <div class="grid grid-3">
+        <article class="card">
+          <h3>Heart rate</h3>
+          <p>Average <strong>72 bpm</strong> this week.</p>
+          <span class="badge">Live</span>
+        </article>
+        <article class="card">
+          <h3>Steps</h3>
+          <p><strong>8,432</strong> / 10,000 daily goal</p>
+        </article>
+        <article class="card">
+          <h3>Sleep</h3>
+          <p><strong>7h 42m</strong> average duration.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Component examples</h2>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="tabs" role="tablist">
+            <div class="tab" role="tab" aria-selected="true">Overview</div>
+            <div class="tab" role="tab" aria-selected="false">Details</div>
+            <div class="tab" role="tab" aria-selected="false">Settings</div>
+          </div>
+          <p style="margin-top:12px;color:var(--muted);">Tabs show sibling views in the same panel.</p>
+        </div>
+        <div class="card">
+          <label style="display:block;font-weight:700;margin-bottom:8px;">Search</label>
+          <input class="input" placeholder="Find a workout, metric, or article…" />
+          <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn">Primary</button>
+            <button class="btn secondary">Secondary</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Profile row</h2>
+      <div class="card" style="display:flex;align-items:center;gap:16px;">
+        <div class="avatar" aria-hidden="true"></div>
+        <div>
+          <div style="font-weight:800;">Alex Chen</div>
+          <div style="color:var(--muted);font-size:0.9rem;">Wellness Coach • Online</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn secondary">Follow</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const buttons = Array.from(document.querySelectorAll('[data-role="theme"]'));
+    const stored = localStorage.getItem('theme');
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function apply(theme) {
+      if (theme === 'system') {
+        root.removeAttribute('data-theme');
+      } else {
+        root.setAttribute('data-theme', theme);
+      }
+      localStorage.setItem('theme', theme);
+      buttons.forEach(b => b.setAttribute('aria-pressed', b.dataset.value === theme));
+    }
+
+    const initial = stored || 'system';
+    apply(initial);
+
+    buttons.forEach(b => b.addEventListener('click', () => apply(b.dataset.value)));
+    mql.addEventListener('change', () => { if (localStorage.getItem('theme') === 'system') root.removeAttribute('data-theme'); });
+  </script>
+</body>
+</html>
