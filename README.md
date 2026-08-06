@@ -1,22 +1,42 @@
-# Koral — Perfect Note Application Package
+# sv
 
-## Files
-- `brand-guidelines.md` — brand, palette, typography, tone, usage rules
-- `naming-rationale.md` — why Koral
-- `logo.svg` — primary mark
-- `product-spec.md` — problem, users, value prop, feature matrix, roadmap
-- `marketing-plan.md` — positioning, channels, content, competitive messaging
-- `monetization-plan.md` — pricing, gating, unit economics, launch timeline
-- `tech-stack.md` — Svelte 5, TS, Tailwind v4, Dexie, OneDrive sync, Ollama
-- `architecture.md` — system architecture and integration map
-- `repo-structure.md` — repository layout
-- `local-dev-setup.md` — onboarding commands
-- `api-contract.md` — endpoints, rate limits, error schema
-- `data-model.md` — notes, attachments, links, objects
-- `build-test-deploy.md` — build, test, package, deploy steps
-- `ui-mockup.html` — single-file visual mockup with theme switcher
-- `design-system.md` — components, spacing, tokens
-- `icon-set.svg` — glyph set
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Next Step
-Open `product-spec.md` first for the feature roadmap and developer handoff.
+## Creating a project
+
+If you're seeing this, you've probably already done this step. Congrats!
+
+```sh
+# create a new project
+npx sv create my-app
+```
+
+To recreate this project with the same configuration:
+
+```sh
+# recreate this project
+npx sv@0.17.0 create --template minimal --types ts --install npm .
+```
+
+## Developing
+
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```sh
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```sh
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
