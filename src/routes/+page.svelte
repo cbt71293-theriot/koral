@@ -2,6 +2,7 @@
 	import { db, type Note } from '$lib/db';
 
 	type View = 'notes' | 'search' | 'tags';
+	type Sort = 'updated' | 'created' | 'title';
 
 	let notes = $state<Note[]>([]);
 	let title = $state('');
@@ -11,22 +12,37 @@
 	let activeTag = $state<string | null>(null);
 	let view = $state<View>('notes');
 	let selectedNoteId = $state<number | null>(null);
+	let sort = $state<Sort>('updated');
+	let showDateFilter = $state(false);
+	let dateFrom = $state('');
+	let dateTo = $state('');
 
 	const selectedNote = $derived(notes.find((n) => n.id === selectedNoteId) ?? null);
 
 	const filtered = $derived.by(() => {
 		let base = notes.filter((n) => !n.deletedAt);
+		if (activeTag) {
+			base = base.filter((n) => n.tags.includes(activeTag));
+		}
 		if (view === 'search' && query.trim()) {
 			const q = query.trim().toLowerCase();
-			return base.filter(
-				(n) =>
-					n.title.toLowerCase().includes(q) ||
-					n.body.toLowerCase().includes(q) ||
-					n.tags.some((t) => t.toLowerCase().includes(q))
-			);
+			const terms = q.split(/\s+/);
+			const scored = base.map((n) => {
+				const text = `${n.title} ${n.body} ${n.tags.join(' ')}`.toLowerCase();
+				const raw = terms.reduce((acc, term) => acc + (text.includes(term) ? 1 : 0), 0);
+				const exactTitle = n.title.toLowerCase().includes(q) ? 2 : 0;
+				return { note: n, score: raw + exactTitle };
+			});
+			scored.sort((a, b) => b.score - a.score);
+			return scored.filter((s) => s.score > 0).map((s) => s.note);
 		}
-		if (activeTag) {
-			return base.filter((n) => n.tags.includes(activeTag));
+		if (showDateFilter && (dateFrom || dateTo)) {
+			base = base.filter((n) => {
+				const t = n.updatedAt;
+				const from = dateFrom ? new Date(dateFrom).getTime() : -Infinity;
+				const to = dateTo ? new Date(dateTo).getTime() + 86400000 : Infinity;
+				return t >= from && t < to;
+			});
 		}
 		return base;
 	});
@@ -91,16 +107,12 @@
 			.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;');
-
-		// wiki links
 		html = html.replace(/\[\[([^\]]+)\]\]/g, (_, raw) => {
 			const target = raw.trim();
 			const exists = notes.some((n) => n.title.trim().toLowerCase() === target.toLowerCase());
 			const cls = exists ? 'text-coral underline' : 'text-driftwood underline';
 			return `<a href="#" class="${cls}" data-wiki="${target}">${target}</a>`;
 		});
-
-		// markdown basics
 		html = html
 			.replace(/^### (.*$)/gim, '<h3>$1</h3>')
 			.replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -121,9 +133,7 @@
 		e.preventDefault();
 		const name = link.getAttribute('data-wiki') || '';
 		const match = notes.find((n) => n.title.trim().toLowerCase() === name.toLowerCase());
-		if (match) {
-			selectedNoteId = match.id;
-		}
+		if (match) selectedNoteId = match.id;
 	}
 
 	load();
@@ -190,17 +200,28 @@
 						{filtered.length} result{filtered.length === 1 ? '' : 's'}
 					</p>
 				</div>
-				<button
-					class="rounded-xl border border-sand bg-white px-3 py-2 text-sm font-semibold transition hover:border-coral"
-					onclick={() => {
-						const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-						document.documentElement.setAttribute('data-theme', next);
-						localStorage.setItem('theme', next || 'system');
-					}}
-					aria-label="Toggle theme"
-				>
-					Theme
-				</button>
+				<div class="flex items-center gap-2">
+					<select
+						class="rounded-xl border border-sand bg-white px-2 py-2 text-xs"
+						bind:value={sort}
+						aria-label="Sort notes"
+					>
+						<option value="updated">Sort: Updated</option>
+						<option value="created">Sort: Created</option>
+						<option value="title">Sort: Title</option>
+					</select>
+					<button
+						class="rounded-xl border border-sand bg-white px-3 py-2 text-sm font-semibold transition hover:border-coral"
+						onclick={() => {
+							const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+							document.documentElement.setAttribute('data-theme', next);
+							localStorage.setItem('theme', next || 'system');
+						}}
+						aria-label="Toggle theme"
+					>
+						Theme
+					</button>
+				</div>
 			</div>
 
 			<form
@@ -229,7 +250,28 @@
 					<button class="rounded-xl bg-coral px-4 py-2 text-sm font-semibold text-white" type="submit">
 						Add
 					</button>
+					<button
+						type="button"
+						class="rounded-xl border border-sand bg-white px-3 py-2 text-xs font-semibold transition hover:border-coral"
+						onclick={() => (showDateFilter = !showDateFilter)}
+					>
+						{showDateFilter ? 'Hide filters' : 'Filter dates'}
+					</button>
 				</div>
+				{#if showDateFilter}
+					<div class="flex flex-col gap-2 md:flex-row">
+						<input
+							type="date"
+							class="w-full rounded-xl border border-sand bg-white px-3 py-2 text-sm outline-none focus:border-coral"
+							bind:value={dateFrom}
+						/>
+						<input
+							type="date"
+							class="w-full rounded-xl border border-sand bg-white px-3 py-2 text-sm outline-none focus:border-coral"
+							bind:value={dateTo}
+						/>
+					</div>
+				{/if}
 			</form>
 
 			{#if view === 'search'}
@@ -257,7 +299,13 @@
 			{/if}
 
 			<ul class="mt-4 grid gap-3">
-				{#each filtered as note (note.id)}
+				{#each filtered
+					.slice()
+					.sort((a, b) => {
+						if (sort === 'title') return a.title.localeCompare(b.title);
+						if (sort === 'created') return a.createdAt - b.createdAt;
+						return b.updatedAt - a.updatedAt;
+					}) as note (note.id)}
 					<li class="rounded-2xl border border-sand bg-white p-4 shadow-sm">
 						<div class="flex items-start justify-between gap-3">
 							<div>
