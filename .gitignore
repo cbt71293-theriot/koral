@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules
 
 # Output
@@ -21,3 +22,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+=======
+.vercel
+>>>>>>> f28163c (fix: import app.css in root layout so Tailwind styles apply)
