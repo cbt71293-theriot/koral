@@ -41,6 +41,12 @@
 		return counts;
 	});
 
+	const backlinks = $derived.by(() => {
+		if (!selectedNote) return [];
+		const targetTitle = selectedNote.title.trim().toLowerCase();
+		return notes.filter((n) => n.id !== selectedNote.id && !n.deletedAt && n.body.toLowerCase().includes(`[[${targetTitle}]]`));
+	});
+
 	async function load() {
 		notes = await db.notes.where('deletedAt').equals(0).or('deletedAt').equals(null).toArray();
 	}
@@ -85,6 +91,16 @@
 			.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;');
+
+		// wiki links
+		html = html.replace(/\[\[([^\]]+)\]\]/g, (_, raw) => {
+			const target = raw.trim();
+			const exists = notes.some((n) => n.title.trim().toLowerCase() === target.toLowerCase());
+			const cls = exists ? 'text-coral underline' : 'text-driftwood underline';
+			return `<a href="#" class="${cls}" data-wiki="${target}">${target}</a>`;
+		});
+
+		// markdown basics
 		html = html
 			.replace(/^### (.*$)/gim, '<h3>$1</h3>')
 			.replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -96,6 +112,18 @@
 			.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
 		html = html.replace(/\n/g, '<br />');
 		return html;
+	}
+
+	function onPreviewClick(e: MouseEvent) {
+		const target = e.target as HTMLElement;
+		const link = target.closest('a[data-wiki]');
+		if (!link) return;
+		e.preventDefault();
+		const name = link.getAttribute('data-wiki') || '';
+		const match = notes.find((n) => n.title.trim().toLowerCase() === name.toLowerCase());
+		if (match) {
+			selectedNoteId = match.id;
+		}
 	}
 
 	load();
@@ -189,7 +217,7 @@
 				/>
 				<textarea
 					class="h-28 w-full rounded-xl border border-sand bg-white px-3 py-2 text-sm outline-none focus:border-coral"
-					placeholder="Write a note... Supports **bold**, *italic*, headings, and lists."
+					placeholder="Write a note... Supports **bold**, *italic*, headings, lists, and [[wiki links]]."
 					bind:value={body}
 				></textarea>
 				<input
@@ -255,6 +283,23 @@
 							<div class="mt-3 rounded-xl border border-sand bg-foam p-3">
 								<div class="text-sm text-deep-ocean" innerHTML={renderMarkdown(note.body)}></div>
 							</div>
+							{#if backlinks.length}
+								<div class="mt-3">
+									<h4 class="text-xs font-semibold uppercase tracking-tight text-driftwood">Backlinks</h4>
+									<ul class="mt-2 space-y-1">
+										{#each backlinks as link}
+											<li>
+												<button
+													class="text-sm text-coral underline"
+													onclick={() => selectNote(link.id)}
+												>
+													{link.title || 'Untitled'}
+												</button>
+											</li>
+										{/each}
+									</ul>
+								</div>
+							{/if}
 						{/if}
 					</li>
 				{:else}
@@ -266,3 +311,5 @@
 		</section>
 	</div>
 </div>
+
+<svelte:window on:click={onPreviewClick} />
